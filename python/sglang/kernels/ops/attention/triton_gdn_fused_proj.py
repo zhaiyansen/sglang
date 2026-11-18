@@ -307,7 +307,7 @@ def fused_qkvzba_split_reshape_cat_contiguous(
         device=mixed_ba.device,
     )
     a = torch.empty_like(b)
-    if _is_hip and batch * seq_len == 0:
+    if batch * seq_len == 0:
         return mixed_qkv, z, b, a
     v_per_group = num_heads_v // num_heads_qk
     grid = (batch * seq_len, num_heads_qk)

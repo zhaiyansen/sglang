@@ -151,6 +151,7 @@ from sglang.srt.utils import (
     is_cuda,
     is_gfx95_supported,
     is_hip,
+    is_musa,
     is_npu,
     is_xpu,
     use_intel_amx_backend,
@@ -198,12 +199,13 @@ _is_xpu = is_xpu()
 # plus the `torch.cat` of the unfused fallback. On CUDA and HIP, ratio-3
 # layouts are handled by the Triton kernel's per-head walk (the CPU fused op
 # still requires a power-of-two group). Other backends keep the original
-# tuple so their control flow is unchanged.
+# tuple so their control flow is unchanged. MUSA uses the validated per-head
+# ratio-3 path as well; it only copies/reorders data and preserves all bits.
 _GDN_FUSED_QKVZBA_RATIOS = (
     (1, 2, 3, 4, 8)
     if _use_aiter
     else (1, 2, 3, 4)
-    if (_is_cuda or _is_hip)
+    if (_is_cuda or _is_hip or is_musa())
     else (1, 2, 4)
 )
 
